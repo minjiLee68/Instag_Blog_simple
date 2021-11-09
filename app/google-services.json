@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "577510472085",
+    "project_id": "instagblog-81229",
+    "storage_bucket": "instagblog-81229.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577510472085:android:84bce166816ed841c65e9c",
+        "android_client_info": {
+          "package_name": "com.sophia.instag_blog_simple"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "577510472085-f2ol9eb3t131ckntvapva6k24h2q9p7v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsNiveSncaGgKt7GcCzQyilfH3pvgfVYE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "577510472085-f2ol9eb3t131ckntvapva6k24h2q9p7v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
