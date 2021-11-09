@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         storageReference = FirebaseStorage.getInstance().reference
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
-        Uid = auth.currentUser!!.uid
+        Uid = auth.currentUser?.uid.toString()
     }
 
     private fun circleImageClick() {
