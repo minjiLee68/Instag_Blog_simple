@@ -7,9 +7,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.UploadTask
 import com.sophia.instag_blog_simple.databinding.ActivityMainBinding
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -18,13 +25,27 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var mImageUri: Uri
+    private lateinit var storageReference: StorageReference
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var downloadUri: Uri
+    private lateinit var Uid: String
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        init()
         circleImageClick()
+        requestPermissions()
+    }
+
+    private fun init() {
+        storageReference = FirebaseStorage.getInstance().reference
+        firestore = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
+        Uid = auth.currentUser!!.uid
     }
 
     private fun circleImageClick() {
@@ -36,22 +57,46 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestPermissions() {
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            Log.d("권한요청", "$it")
-        }.launch(PERMISSIONS_REQUESTED)
+    private fun saveBtnClick() {
+        binding.saveBtn.setOnClickListener {
+            binding.progressBar.visibility = View.VISIBLE
+            val name = binding.nickName.text.toString()
+
+            if (name.isNotEmpty()) {
+                val imageRef = storageReference.child("Profile").child("$name.jpg")
+                imageRef.putFile(mImageUri)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            saveToFireStore(task, name, imageRef)
+                        } else {
+                            Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+            } else {
+                Toast.makeText(this, "사진을 선택하고 이름을 적어주세요.", Toast.LENGTH_SHORT).show()
+            }
+            binding.progressBar.visibility = View.GONE
+        }
     }
 
-    companion object {
-        private const val PERMISSION_READ_EXTEDNAL_STORAGE =
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        private const val PERMISSION_WRITE_EXTEDNAL_STORAGE =
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    private fun saveToFireStore(
+        task: Task<UploadTask.TaskSnapshot>,
+        name: String,
+        imageRef: StorageReference
+    ) {
+        imageRef.downloadUrl.addOnSuccessListener {
+            downloadUri = it
+            val map: HashMap<String, Any> = HashMap()
+            map["name"] = name
+            map["image"] = downloadUri.toString()
 
-        private val PERMISSIONS_REQUESTED: Array<String> = arrayOf(
-            PERMISSION_READ_EXTEDNAL_STORAGE,
-            PERMISSION_WRITE_EXTEDNAL_STORAGE
-        )
+            firestore.collection("Users").document().set(map)
+                .addOnCompleteListener {
+                if (task.isSuccessful) {
+                    Toast.makeText(this,"프로필 셋팅 완료",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun cropImage(uri: Uri) {
@@ -81,5 +126,21 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private fun requestPermissions() {
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            Log.d("권한요청", "$it")
+        }.launch(PERMISSIONS_REQUESTED)
+    }
 
+    companion object {
+        private const val PERMISSION_READ_EXTEDNAL_STORAGE =
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        private const val PERMISSION_WRITE_EXTEDNAL_STORAGE =
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+
+        private val PERMISSIONS_REQUESTED: Array<String> = arrayOf(
+            PERMISSION_READ_EXTEDNAL_STORAGE,
+            PERMISSION_WRITE_EXTEDNAL_STORAGE
+        )
+    }
 }
