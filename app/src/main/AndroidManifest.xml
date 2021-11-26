@@ -13,9 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instag_Blog_simple">
         <activity
-            android:name=".MainActivity" />
-        <activity
-            android:name=".SignUpActivity" />
+            android:name=".SetUpActivity"
+            android:exported="false" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />
         <activity
             android:name=".SplashActivity"
