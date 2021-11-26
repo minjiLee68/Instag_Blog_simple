@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var downloadUri: Uri
     private lateinit var Uid: String
     private lateinit var auth: FirebaseAuth
+    private var isPhotoSelected: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         init()
         circleImageClick()
         requestPermissions()
+        saveBtnClick()
+        getProfileInFor()
     }
 
     private fun init() {
@@ -57,46 +61,75 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun getProfileInFor() {
+        firestore.collection("Users").document(Uid).get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    if (task.result!!.exists()) {
+                        val name = task.result!!.getString("name")
+                        val imageUrl = task.result!!.getString("image")
+                        binding.nickName.setText(name)
+                        mImageUri = Uri.parse(imageUrl)
+                        Glide.with(this).load(imageUrl).into(binding.profile)
+                    }
+                }
+            }
+    }
+
     private fun saveBtnClick() {
         binding.saveBtn.setOnClickListener {
             binding.progressBar.visibility = View.VISIBLE
             val name = binding.nickName.text.toString()
 
-            if (name.isNotEmpty()) {
-                val imageRef = storageReference.child("Profile").child("$name.jpg")
-                imageRef.putFile(mImageUri)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            saveToFireStore(task, name, imageRef)
-                        } else {
-                            Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+            val imageRef = storageReference.child("Profile_pics").child("$Uid.jpg")
+            if (isPhotoSelected) {
+                if (name.isNotEmpty()) {
+                    val imageRef = storageReference.child("Profile").child("$name.jpg")
+                    imageRef.putFile(mImageUri)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                saveToFireStore(task, name, imageRef)
+                            } else {
+                                Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
                         }
-                    }
+                } else {
+                    Toast.makeText(this, "사진을 선택하고 이름을 적어주세요.", Toast.LENGTH_SHORT).show()
+                }
             } else {
-                Toast.makeText(this, "사진을 선택하고 이름을 적어주세요.", Toast.LENGTH_SHORT).show()
+                saveToFireStore(null, name, imageRef)
             }
             binding.progressBar.visibility = View.GONE
         }
     }
 
     private fun saveToFireStore(
-        task: Task<UploadTask.TaskSnapshot>,
+        task: Task<UploadTask.TaskSnapshot>?,
         name: String,
         imageRef: StorageReference
     ) {
-        imageRef.downloadUrl.addOnSuccessListener {
-            downloadUri = it
-            val map: HashMap<String, Any> = HashMap()
-            map["name"] = name
-            map["image"] = downloadUri.toString()
-
-            firestore.collection("Users").document().set(map)
-                .addOnCompleteListener {
-                if (task.isSuccessful) {
-                    Toast.makeText(this,"프로필 셋팅 완료",Toast.LENGTH_SHORT).show()
+        if (task != null) {
+            imageRef.downloadUrl.addOnSuccessListener {
+                downloadUri = it
+            }
+        } else {
+            downloadUri = mImageUri
+        }
+        val map: HashMap<String, Any> = HashMap()
+        map["name"] = name
+        map["image"] = downloadUri.toString()
+        firestore.collection("Users").document(Uid).set(map)
+            .addOnCompleteListener {
+                if (task != null) {
+                    if (task.isSuccessful) {
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(this, "프로필 셋팅 완료", Toast.LENGTH_SHORT).show()
+                    } else {
+                        binding.progressBar.visibility = View.VISIBLE
+                    }
                 }
             }
-        }
     }
 
     private fun cropImage(uri: Uri) {
@@ -119,6 +152,7 @@ class MainActivity : AppCompatActivity() {
                         binding.profile.setImageBitmap(result.bitmap)
                         binding.profile.setImageURI(result.uri)
                         mImageUri = result.uri
+                        isPhotoSelected = true
                     }
                 } else if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     Toast.makeText(this, result.error.message, Toast.LENGTH_SHORT).show()
