@@ -6,5 +6,5 @@ data class Post(
     val image: String,
     val user: String,
     val caption: String,
-    val time: Date
+    val time: String
 )

@@ -9,12 +9,16 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.sophia.instag_blog_simple.databinding.ActivityAddPostBinding
+import com.sophia.instag_blog_simple.viewmodel.PostViewModel
+import com.sophia.instag_blog_simple.viewmodel.PostViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 
@@ -26,6 +30,10 @@ class AddPostActivity : AppCompatActivity() {
     private lateinit var firestore: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
     private lateinit var Uid: String
+
+    private val viewmodel by viewModels<PostViewModel> {
+        PostViewModelFactory(applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,38 +60,41 @@ class AddPostActivity : AppCompatActivity() {
             binding.ivAddBtn.visibility = View.GONE
         }
         binding.saveBtn.setOnClickListener {
-            binding.progressBar.visibility = View.VISIBLE
-            val caption = binding.captionText.text.toString()
-            if (caption.isNotEmpty()) {
-                val postRef = storageReference.child("post_images")
-                    .child("${FieldValue.serverTimestamp()}.jpg")
-                postRef.putFile(mImageUri).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        binding.progressBar.visibility = View.INVISIBLE
-                        postRef.downloadUrl.addOnSuccessListener { uri ->
-                            val postMap = HashMap<String, Any>()
-                            postMap["image"] = uri.toString()
-                            postMap["user"] = Uid
-                            postMap["caption"] = caption
-                            postMap["time"] = FieldValue.serverTimestamp()
-
-                            firestore.collection("Posts").add(postMap)
-                                .addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        binding.progressBar.visibility = View.INVISIBLE
-                                        startActivity(Intent(this, MainActivity::class.java))
-                                        finish()
-                                    }
-                                }
-                        }
-                    } else {
-                        Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } else {
-                binding.progressBar.visibility = View.INVISIBLE
-                Toast.makeText(this, "이미지를 추가하고 캡션을 작성하세요.", Toast.LENGTH_SHORT).show()
-            }
+            viewmodel.addPost(binding.captionText.text.toString(),mImageUri,applicationContext)
+            startActivity(Intent(this,MainActivity::class.java))
+            finish()
+//            binding.progressBar.visibility = View.VISIBLE
+//            val caption = binding.captionText.text.toString()
+//            if (caption.isNotEmpty()) {
+//                val postRef = storageReference.child("post_images")
+//                    .child("${FieldValue.serverTimestamp()}.jpg")
+//                postRef.putFile(mImageUri).addOnCompleteListener { task ->
+//                    if (task.isSuccessful) {
+//                        binding.progressBar.visibility = View.INVISIBLE
+//                        postRef.downloadUrl.addOnSuccessListener { uri ->
+//                            val postMap = HashMap<String, Any>()
+//                            postMap["image"] = uri.toString()
+//                            postMap["user"] = Uid
+//                            postMap["caption"] = caption
+//                            postMap["time"] = FieldValue.serverTimestamp()
+//
+//                            firestore.collection("Posts").add(postMap)
+//                                .addOnCompleteListener { task ->
+//                                    if (task.isSuccessful) {
+//                                        binding.progressBar.visibility = View.INVISIBLE
+//                                        startActivity(Intent(this, MainActivity::class.java))
+//                                        finish()
+//                                    }
+//                                }
+//                        }
+//                    } else {
+//                        Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            } else {
+//                binding.progressBar.visibility = View.INVISIBLE
+//                Toast.makeText(this, "이미지를 추가하고 캡션을 작성하세요.", Toast.LENGTH_SHORT).show()
+//            }
         }
     }
 

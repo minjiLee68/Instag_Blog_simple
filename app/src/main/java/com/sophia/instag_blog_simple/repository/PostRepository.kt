@@ -23,24 +23,21 @@ class PostRepository(context: Context) {
     private var progressBar: ProgressBar = ProgressBar(context)
 
 
-    private fun addPost(
+    fun addPost(
         captionText: String,
         mImageUri: Uri,
         context: Context,
-        image: String,
-        user: String,
-        caption: String,
-        time: Date
     ) {
         progressBar.visibility = View.VISIBLE
+        val time = FieldValue.serverTimestamp().toString()
         if (captionText.isNotEmpty()) {
             val postRef = storageReference.child("post_images")
                 .child("${FieldValue.serverTimestamp()}.jpg")
             postRef.putFile(mImageUri).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     progressBar.visibility = View.INVISIBLE
-                    postRef.downloadUrl.addOnSuccessListener {
-                        val post = Post(image, user, caption, time)
+                    postRef.downloadUrl.addOnSuccessListener { uri ->
+                        val post = Post(uri.toString(), Uid, captionText, time)
                         firestore.collection("Posts").add(post)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
