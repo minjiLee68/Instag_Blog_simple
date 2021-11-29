@@ -20,7 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
+import com.sophia.instag_blog_simple.adapter.PostAdapter
 import com.sophia.instag_blog_simple.databinding.ActivityMainBinding
+import com.sophia.instag_blog_simple.model.Post
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 
@@ -28,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
+    private lateinit var postList: MutableList<Post>
+    private lateinit var postAdapter: PostAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +45,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initRecyclerView() {
+        postAdapter = PostAdapter(postList)
         binding.recyclerView.let {
             it.setHasFixedSize(true)
             it.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        }
+    }
+
+    private fun putDataInList() {
+        if (auth.currentUser != null) {
+
         }
     }
 
