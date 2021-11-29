@@ -16,9 +16,11 @@ import com.sophia.instag_blog_simple.viewmodel.PostViewModel
 
 class PostAdapter(private val mList: List<Post>): ListAdapter<Post, PostAdapter.PostViewHolder>(
         object : DiffUtil.ItemCallback<Post>() {
-            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean = true
+            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean =
+                oldItem == newItem
 
-            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean = true
+            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean =
+                oldItem.user == newItem.user && oldItem.image == newItem.image
         }
 
     ) {

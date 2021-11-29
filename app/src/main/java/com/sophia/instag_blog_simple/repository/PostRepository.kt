@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.sophia.instag_blog_simple.interfaced.CallAnotherActivityNavigator
 import com.sophia.instag_blog_simple.model.Post
 import com.sophia.instag_blog_simple.model.User
 import java.text.SimpleDateFormat
@@ -49,9 +50,8 @@ class PostRepository(context: Context) {
         captionText: String,
         mImageUri: Uri,
         context: Context,
+        navigator: CallAnotherActivityNavigator
     ) {
-        progressBar.visibility = View.VISIBLE
-
         if (captionText.isNotEmpty()) {
             val postRef = storageReference.child("post_images")
                 .child("${FieldValue.serverTimestamp()}.jpg")
@@ -60,9 +60,10 @@ class PostRepository(context: Context) {
                     progressBar.visibility = View.INVISIBLE
                     postRef.downloadUrl.addOnSuccessListener { uri ->
                         val post = Post(uri.toString(), Uid, captionText, time)
-                        firestore.collection("Posts").add(post)
+                        firestore.collection("Posts").document().set(post)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
+                                    navigator.callActivity()
                                     progressBar.visibility = View.INVISIBLE
                                 }
                             }
@@ -78,22 +79,22 @@ class PostRepository(context: Context) {
     }
 
     fun putDataInList(postList: MutableList<Post>): LiveData<List<Post>> {
-            firestore.collection("Posts").addSnapshotListener { value, _ ->
-                if (value != null) {
-                    for (dc: DocumentChange in value.documentChanges) {
-                        if (dc.type == DocumentChange.Type.ADDED) {
-                            val post = dc.document.toObject(Post::class.java)
-                            post.user = dc.document.getString("user")!!
-                            post.image = dc.document.getString("image")!!
-                            post.caption = dc.document.getString("caption")!!
-                            post.time = time
+        firestore.collection("Posts").addSnapshotListener { value, _ ->
+            if (value != null) {
+                for (dc: DocumentChange in value.documentChanges) {
+                    if (dc.type == DocumentChange.Type.ADDED) {
+                        val post = dc.document.toObject(Post::class.java)
+                        post.user = dc.document.getString("user")!!
+                        post.image = dc.document.getString("image")!!
+                        post.caption = dc.document.getString("caption")!!
+                        post.time = time
 
-                            postList.add(post)
-                            mPostData.value = postList
-                        }
+                        postList.add(post)
+                        mPostData.value = postList
                     }
                 }
             }
+        }
         return mPostData
     }
 }

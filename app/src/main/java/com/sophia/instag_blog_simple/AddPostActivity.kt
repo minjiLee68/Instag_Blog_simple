@@ -17,12 +17,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.sophia.instag_blog_simple.databinding.ActivityAddPostBinding
+import com.sophia.instag_blog_simple.interfaced.CallAnotherActivityNavigator
+import com.sophia.instag_blog_simple.model.Post
 import com.sophia.instag_blog_simple.viewmodel.PostViewModel
 import com.sophia.instag_blog_simple.viewmodel.PostViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import java.text.SimpleDateFormat
+import java.util.*
 
-class AddPostActivity : AppCompatActivity() {
+class AddPostActivity : AppCompatActivity(), CallAnotherActivityNavigator {
 
     private lateinit var binding: ActivityAddPostBinding
     private lateinit var mImageUri: Uri
@@ -56,13 +60,13 @@ class AddPostActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             intent.type = "image/*"
             intent.putExtra("crop", true) //기존 코드에 이 줄 추가!
+            intent.action = Intent.ACTION_GET_CONTENT
             fileterActivityLauncher.launch(intent)
             binding.ivAddBtn.visibility = View.GONE
         }
         binding.saveBtn.setOnClickListener {
-            viewmodel.addPost(binding.captionText.text.toString(),mImageUri,applicationContext)
-            startActivity(Intent(this,MainActivity::class.java))
-            finish()
+            binding.progressBar.visibility = View.VISIBLE
+            viewmodel.addPost(binding.captionText.text.toString(),mImageUri,applicationContext,this)
         }
     }
 
@@ -92,4 +96,8 @@ class AddPostActivity : AppCompatActivity() {
                 }
             }
         }
+
+    override fun callActivity() {
+        startActivity(Intent(this, MainActivity::class.java))
+    }
 }

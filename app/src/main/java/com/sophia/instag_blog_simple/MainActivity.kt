@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         viewmodel.putDataInList(postList).observe(this, {
             postAdapter.submitList(it)
         })
+
     }
 
     private fun addPhotoFeed() {
