@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
@@ -23,6 +24,8 @@ import com.google.firebase.storage.UploadTask
 import com.sophia.instag_blog_simple.adapter.PostAdapter
 import com.sophia.instag_blog_simple.databinding.ActivityMainBinding
 import com.sophia.instag_blog_simple.model.Post
+import com.sophia.instag_blog_simple.viewmodel.PostViewModel
+import com.sophia.instag_blog_simple.viewmodel.PostViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 
@@ -33,15 +36,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var postList: MutableList<Post>
     private lateinit var postAdapter: PostAdapter
 
+    private val viewmodel by viewModels<PostViewModel> {
+        PostViewModelFactory(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        postList = mutableListOf()
 
         setButtonLogout()
         addPhotoFeed()
+        initRecyclerView()
     }
 
     private fun initRecyclerView() {
@@ -49,13 +58,11 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.let {
             it.setHasFixedSize(true)
             it.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+            it.adapter = postAdapter
         }
-    }
-
-    private fun putDataInList() {
-        if (auth.currentUser != null) {
-
-        }
+        viewmodel.putDataInList(postList).observe(this, {
+            postAdapter.submitList(it)
+        })
     }
 
     private fun addPhotoFeed() {

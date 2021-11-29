@@ -52,7 +52,7 @@ class AddPostActivity : AppCompatActivity() {
     }
 
     private fun addPost() {
-        binding.ivAddBtn.setOnClickListener {
+        binding.ivAddImage.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             intent.type = "image/*"
             intent.putExtra("crop", true) //기존 코드에 이 줄 추가!
@@ -63,45 +63,12 @@ class AddPostActivity : AppCompatActivity() {
             viewmodel.addPost(binding.captionText.text.toString(),mImageUri,applicationContext)
             startActivity(Intent(this,MainActivity::class.java))
             finish()
-//            binding.progressBar.visibility = View.VISIBLE
-//            val caption = binding.captionText.text.toString()
-//            if (caption.isNotEmpty()) {
-//                val postRef = storageReference.child("post_images")
-//                    .child("${FieldValue.serverTimestamp()}.jpg")
-//                postRef.putFile(mImageUri).addOnCompleteListener { task ->
-//                    if (task.isSuccessful) {
-//                        binding.progressBar.visibility = View.INVISIBLE
-//                        postRef.downloadUrl.addOnSuccessListener { uri ->
-//                            val postMap = HashMap<String, Any>()
-//                            postMap["image"] = uri.toString()
-//                            postMap["user"] = Uid
-//                            postMap["caption"] = caption
-//                            postMap["time"] = FieldValue.serverTimestamp()
-//
-//                            firestore.collection("Posts").add(postMap)
-//                                .addOnCompleteListener { task ->
-//                                    if (task.isSuccessful) {
-//                                        binding.progressBar.visibility = View.INVISIBLE
-//                                        startActivity(Intent(this, MainActivity::class.java))
-//                                        finish()
-//                                    }
-//                                }
-//                        }
-//                    } else {
-//                        Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
-//                    }
-//                }
-//            } else {
-//                binding.progressBar.visibility = View.INVISIBLE
-//                Toast.makeText(this, "이미지를 추가하고 캡션을 작성하세요.", Toast.LENGTH_SHORT).show()
-//            }
         }
     }
 
     private fun cropImage(uri: Uri) {
         CropImage.activity(uri).setGuidelines(CropImageView.Guidelines.ON)
-            .setAspectRatio(1,1)
-            .setMinCropResultSize(512, 512)
+            .setCropShape(CropImageView.CropShape.RECTANGLE)
             .start(this)
     }
 

@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import com.bumptech.glide.Glide
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -20,6 +21,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import com.sophia.instag_blog_simple.databinding.ActivitySetUpBinding
+import com.sophia.instag_blog_simple.viewmodel.PostViewModel
+import com.sophia.instag_blog_simple.viewmodel.PostViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 
@@ -33,6 +36,10 @@ class SetUpActivity : AppCompatActivity() {
     private lateinit var downloadUri: Uri
     private lateinit var Uid: String
     private var isPhotoSelected: Boolean = false
+
+    private val viewmodel by viewModels<PostViewModel> {
+        PostViewModelFactory(applicationContext)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,20 +124,22 @@ class SetUpActivity : AppCompatActivity() {
         } else {
             downloadUri = mImageUri
         }
-        val map: HashMap<String, Any> = HashMap()
-        map["name"] = name
-        map["image"] = downloadUri.toString()
-        firestore.collection("Users").document(Uid).set(map)
-            .addOnCompleteListener {
-                if (task != null) {
-                    if (task.isSuccessful) {
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(this, "프로필 셋팅 완료", Toast.LENGTH_SHORT).show()
-                    } else {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
-                }
-            }
+
+        viewmodel.setUser(name,downloadUri.toString())
+//        val map: HashMap<String, Any> = HashMap()
+//        map["name"] = name
+//        map["image"] = downloadUri.toString()
+//        firestore.collection("Users").document(Uid).set(map)
+//            .addOnCompleteListener {
+//                if (task != null) {
+//                    if (task.isSuccessful) {
+//                        binding.progressBar.visibility = View.GONE
+//                        Toast.makeText(this, "프로필 셋팅 완료", Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        binding.progressBar.visibility = View.VISIBLE
+//                    }
+//                }
+//            }
     }
 
     private fun cropImage(uri: Uri) {
