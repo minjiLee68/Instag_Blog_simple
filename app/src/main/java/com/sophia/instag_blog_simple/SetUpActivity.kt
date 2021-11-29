@@ -28,9 +28,9 @@ class SetUpActivity : AppCompatActivity() {
     private lateinit var mImageUri: Uri
     private lateinit var storageReference: StorageReference
     private lateinit var firestore: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
     private lateinit var downloadUri: Uri
     private lateinit var Uid: String
-    private lateinit var auth: FirebaseAuth
     private var isPhotoSelected: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {

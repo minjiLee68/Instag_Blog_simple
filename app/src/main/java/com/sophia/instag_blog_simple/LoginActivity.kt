@@ -25,7 +25,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        moveMainPage(mAuth?.currentUser)
+        moveMainPage(mAuth.currentUser)
     }
 
     private fun moveMainPage(user: FirebaseUser?) {
