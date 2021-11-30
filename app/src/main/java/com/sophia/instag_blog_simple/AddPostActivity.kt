@@ -1,5 +1,6 @@
 package com.sophia.instag_blog_simple
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -57,10 +58,9 @@ class AddPostActivity : AppCompatActivity(), CallAnotherActivityNavigator {
 
     private fun addPost() {
         binding.ivAddImage.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             intent.putExtra("crop", true) //기존 코드에 이 줄 추가!
-            intent.action = Intent.ACTION_GET_CONTENT
             fileterActivityLauncher.launch(intent)
             binding.ivAddBtn.visibility = View.GONE
         }
@@ -78,23 +78,45 @@ class AddPostActivity : AppCompatActivity(), CallAnotherActivityNavigator {
 
     private val fileterActivityLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK && it.data?.data != null) {
-                cropImage(it.data?.data!!)
-                mImageUri = it.data?.data!!
-                binding.ivAddImage.setImageURI(mImageUri)
-            }
-            if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-                val result: CropImage.ActivityResult = CropImage.getActivityResult(it.data)
-                if (it.resultCode == RESULT_OK) {
-                    result.uri?.let {
-                        binding.ivAddImage.setImageBitmap(result.bitmap)
-                        binding.ivAddImage.setImageURI(result.uri)
-                        mImageUri = result.uri
+            when(it.resultCode) {
+                RESULT_OK -> {
+                    it.data?.data?.let { uri->
+                        cropImage(uri)
                     }
-                } else if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Toast.makeText(this, result.error.message, Toast.LENGTH_SHORT).show()
+                    mImageUri = it.data?.data!!
+                    binding.ivAddImage.setImageURI(mImageUri)
+                }
+                CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
+                    val result = CropImage.getActivityResult(it.data)
+                    if (it.resultCode == Activity.RESULT_OK) {
+                        result.uri?.let {
+                            binding.ivAddImage.setImageBitmap(result.bitmap)
+                            binding.ivAddImage.setImageURI(result.uri)
+                            mImageUri = result.uri
+                        }
+                    } else if(it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                        Toast.makeText(this, result.error.message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
+//            if (it.resultCode == RESULT_OK && it.data?.data != null) {
+//                cropImage(it.data?.data!!)
+//                mImageUri = it.data?.data!!
+//                binding.ivAddImage.setImageURI(mImageUri)
+//            }
+//            if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+//                val result: CropImage.ActivityResult = CropImage.getActivityResult(it.data)
+//                cropImage(it.data?.data!!)
+//                if (it.resultCode == RESULT_OK) {
+//                    result.uri?.let {
+//                        binding.ivAddImage.setImageBitmap(result.bitmap)
+//                        binding.ivAddImage.setImageURI(result.uri)
+//                        mImageUri = result.uri
+//                    }
+//                } else if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+//                    Toast.makeText(this, result.error.message, Toast.LENGTH_SHORT).show()
+//                }
+//            }
         }
 
     override fun callActivity() {

@@ -83,7 +83,8 @@ class PostRepository(context: Context) {
             if (value != null) {
                 for (dc: DocumentChange in value.documentChanges) {
                     if (dc.type == DocumentChange.Type.ADDED) {
-                        val post = dc.document.toObject(Post::class.java)
+                        val postId = dc.document.id
+                        val post = dc.document.toObject(Post::class.java).withId(postId)
                         post.user = dc.document.getString("user")!!
                         post.image = dc.document.getString("image")!!
                         post.caption = dc.document.getString("caption")!!
