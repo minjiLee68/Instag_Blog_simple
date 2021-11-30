@@ -99,24 +99,6 @@ class AddPostActivity : AppCompatActivity(), CallAnotherActivityNavigator {
                     }
                 }
             }
-//            if (it.resultCode == RESULT_OK && it.data?.data != null) {
-//                cropImage(it.data?.data!!)
-//                mImageUri = it.data?.data!!
-//                binding.ivAddImage.setImageURI(mImageUri)
-//            }
-//            if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-//                val result: CropImage.ActivityResult = CropImage.getActivityResult(it.data)
-//                cropImage(it.data?.data!!)
-//                if (it.resultCode == RESULT_OK) {
-//                    result.uri?.let {
-//                        binding.ivAddImage.setImageBitmap(result.bitmap)
-//                        binding.ivAddImage.setImageURI(result.uri)
-//                        mImageUri = result.uri
-//                    }
-//                } else if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-//                    Toast.makeText(this, result.error.message, Toast.LENGTH_SHORT).show()
-//                }
-//            }
         }
 
     override fun callActivity() {

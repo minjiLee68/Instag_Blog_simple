@@ -21,12 +21,13 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import com.sophia.instag_blog_simple.databinding.ActivitySetUpBinding
+import com.sophia.instag_blog_simple.interfaced.CallAnotherActivityNavigator
 import com.sophia.instag_blog_simple.viewmodel.PostViewModel
 import com.sophia.instag_blog_simple.viewmodel.PostViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 
-class SetUpActivity : AppCompatActivity() {
+class SetUpActivity : AppCompatActivity(), CallAnotherActivityNavigator {
 
     private lateinit var binding: ActivitySetUpBinding
     private lateinit var mImageUri: Uri
@@ -88,7 +89,6 @@ class SetUpActivity : AppCompatActivity() {
         binding.saveBtn.setOnClickListener {
             binding.progressBar.visibility = View.VISIBLE
             val name = binding.nickName.text.toString()
-
             val imageRef = storageReference.child("Profile_pics").child("$Uid.jpg")
             if (isPhotoSelected) {
                 if (name.isNotEmpty()) {
@@ -108,7 +108,6 @@ class SetUpActivity : AppCompatActivity() {
             } else {
                 saveToFireStore(null, name, imageRef)
             }
-            binding.progressBar.visibility = View.GONE
         }
     }
 
@@ -125,21 +124,7 @@ class SetUpActivity : AppCompatActivity() {
             downloadUri = mImageUri
         }
 
-        viewmodel.setUser(name,downloadUri.toString())
-//        val map: HashMap<String, Any> = HashMap()
-//        map["name"] = name
-//        map["image"] = downloadUri.toString()
-//        firestore.collection("Users").document(Uid).set(map)
-//            .addOnCompleteListener {
-//                if (task != null) {
-//                    if (task.isSuccessful) {
-//                        binding.progressBar.visibility = View.GONE
-//                        Toast.makeText(this, "프로필 셋팅 완료", Toast.LENGTH_SHORT).show()
-//                    } else {
-//                        binding.progressBar.visibility = View.VISIBLE
-//                    }
-//                }
-//            }
+        viewmodel.setUser(name,downloadUri.toString(),this)
     }
 
     private fun cropImage(uri: Uri) {
@@ -186,5 +171,9 @@ class SetUpActivity : AppCompatActivity() {
             PERMISSION_READ_EXTEDNAL_STORAGE,
             PERMISSION_WRITE_EXTEDNAL_STORAGE
         )
+    }
+
+    override fun callActivity() {
+        startActivity(Intent(this, MainActivity::class.java))
     }
 }

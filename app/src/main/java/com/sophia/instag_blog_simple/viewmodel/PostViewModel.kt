@@ -25,8 +25,8 @@ class PostViewModel(private val repository: PostRepository) : ViewModel() {
         return repository.getPostData()
     }
 
-    fun setUser(name: String, image: String) {
-        repository.setUser(name, image)
+    fun setUser(name: String, image: String, navigator: CallAnotherActivityNavigator) {
+        repository.setUser(name, image, navigator)
     }
 
 }

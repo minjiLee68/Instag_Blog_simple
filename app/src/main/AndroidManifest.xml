@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Instag_Blog_simple">
         <activity
+            android:name=".CommentsActivity"
+            android:exported="false" />
+        <activity
             android:name=".AddPostActivity"
             android:exported="false" />
         <activity

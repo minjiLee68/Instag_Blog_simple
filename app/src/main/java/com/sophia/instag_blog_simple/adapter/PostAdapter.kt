@@ -1,6 +1,7 @@
 package com.sophia.instag_blog_simple.adapter
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.sophia.instag_blog_simple.CommentsActivity
 import com.sophia.instag_blog_simple.R
 import com.sophia.instag_blog_simple.databinding.PostItemBinding
 import com.sophia.instag_blog_simple.model.Post
@@ -49,6 +51,7 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
                         }
                     }
                 }
+
             //likesBtn
             val postId = post.postId
             val currentUserId = auth.currentUser!!.uid
@@ -61,7 +64,8 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
                             firestore.collection("Posts/$postId/Likes").document(currentUserId)
                                 .set(likesMap)
                         } else {
-                            firestore.collection("Posts/$postId/Likes").document(currentUserId).delete()
+                            firestore.collection("Posts/$postId/Likes").document(currentUserId)
+                                .delete()
                         }
                     }
             }
@@ -87,6 +91,12 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
                         setPostLikes(0)
                     }
                 }
+            }
+
+            //comments implementation
+            binding.commentIv.setOnClickListener {
+                val commentIntent = Intent(itemView.context, CommentsActivity::class.java)
+                itemView.context.startActivity(commentIntent)
             }
         }
 

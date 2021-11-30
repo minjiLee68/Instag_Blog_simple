@@ -34,11 +34,12 @@ class PostRepository(context: Context) {
 
     fun getPostData(): LiveData<List<Post>> = mPostData
 
-    fun setUser(name: String, image: String) {
+    fun setUser(name: String, image: String, navigator: CallAnotherActivityNavigator) {
         val user = User(name, image)
         firestore.collection("Users").document(Uid).set(user)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    navigator.callActivity()
                     progressBar.visibility = View.GONE
                 } else {
                     progressBar.visibility = View.VISIBLE
@@ -98,4 +99,6 @@ class PostRepository(context: Context) {
         }
         return mPostData
     }
+
+
 }
