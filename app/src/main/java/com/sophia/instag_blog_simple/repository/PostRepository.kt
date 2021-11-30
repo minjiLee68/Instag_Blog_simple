@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.sophia.instag_blog_simple.interfaced.CallAnotherActivityNavigator
+import com.sophia.instag_blog_simple.model.Comments
 import com.sophia.instag_blog_simple.model.Post
 import com.sophia.instag_blog_simple.model.User
 import java.text.SimpleDateFormat
@@ -31,8 +32,10 @@ class PostRepository(context: Context) {
     private val time = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN).format(now)
 
     private val mPostData = MutableLiveData<List<Post>>()
+    private val mCommentData = MutableLiveData<List<Comments>>()
 
     fun getPostData(): LiveData<List<Post>> = mPostData
+    fun getCommentData(): LiveData<List<Comments>> = mCommentData
 
     fun setUser(name: String, image: String, navigator: CallAnotherActivityNavigator) {
         val user = User(name, image)
@@ -100,5 +103,27 @@ class PostRepository(context: Context) {
         return mPostData
     }
 
+    fun sendComment(comments: String, postId: String) {
+        if (comments.isNotEmpty()) {
+            val comment = Comments(comments, time, Uid)
+            firestore.collection("Posts/$postId/Comments").document().set(comment)
+        }
+    }
+
+    fun getCommentId(
+        commentList: MutableList<Comments>,
+        postId: String
+    ): LiveData<List<Comments>> {
+        firestore.collection("Posts/$postId/Comments").addSnapshotListener { value, _ ->
+            for (dc: DocumentChange in value!!.documentChanges) {
+                if (dc.type == DocumentChange.Type.ADDED) {
+                    val comments = dc.document.toObject(Comments::class.java)
+                    commentList.add(comments)
+                    mCommentData.value = commentList
+                }
+            }
+        }
+        return mCommentData
+    }
 
 }

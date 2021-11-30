@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.sophia.instag_blog_simple.interfaced.CallAnotherActivityNavigator
+import com.sophia.instag_blog_simple.model.Comments
 import com.sophia.instag_blog_simple.model.Post
 import com.sophia.instag_blog_simple.model.User
 import com.sophia.instag_blog_simple.repository.PostRepository
@@ -17,7 +18,7 @@ class PostViewModel(private val repository: PostRepository) : ViewModel() {
         context: Context,
         navigator: CallAnotherActivityNavigator
     ) {
-        repository.addPost(captionText, mImageUri, context,navigator)
+        repository.addPost(captionText, mImageUri, context, navigator)
     }
 
     fun putDataInList(postList: MutableList<Post>): LiveData<List<Post>> {
@@ -27,6 +28,17 @@ class PostViewModel(private val repository: PostRepository) : ViewModel() {
 
     fun setUser(name: String, image: String, navigator: CallAnotherActivityNavigator) {
         repository.setUser(name, image, navigator)
+    }
+
+    fun sendComment(comments: String, postId: String) {
+        repository.sendComment(comments, postId)
+    }
+
+    fun getCommentId(
+        commentList: MutableList<Comments>,
+        postId: String
+    ): LiveData<List<Comments>> {
+        return repository.getCommentId(commentList,postId)
     }
 
 }
