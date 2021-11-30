@@ -53,10 +53,24 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
             val postId = post.postId
             val currentUserId = auth.currentUser!!.uid
             binding.likedClick.setOnClickListener {
-                val tsDoc = firestore?.collection("Posts/$postId/Likes").document(currentUserId)
-                firestore.runTransaction { transaction ->
-                    var contentDTO = transaction.get(tsDoc).toObject()
-                }
+                firestore.collection("Posts/$postId/Likes").document(currentUserId).get()
+                    .addOnCompleteListener { task ->
+                        if (task.result != null) {
+                            val likesMap: HashMap<String, Any> = HashMap()
+                            likesMap["timestamp"] = FieldValue.serverTimestamp()
+                            firestore.collection("Posts/$postId/Likes").document(currentUserId).set(likesMap)
+                        } else {
+                            Log.d("tag","error")
+                        }
+                    }
+                firestore.collection("Posts/$postId/Likes").document(currentUserId)
+                    .addSnapshotListener { value, _ ->
+                        if (value != null) {
+                            binding.likedClick.setImageDrawable(itemView.context.getDrawable(R.drawable.ic_after_like))
+                        } else {
+                            binding.likedClick.setImageDrawable(itemView.context.getDrawable(R.drawable.before_liked))
+                        }
+                    }
 //                firestore.collection("Posts/$postId/Likes").document(currentUserId).get()
 //                    .addOnCompleteListener { task ->
 //                        if (task.result!!.exists()) {
