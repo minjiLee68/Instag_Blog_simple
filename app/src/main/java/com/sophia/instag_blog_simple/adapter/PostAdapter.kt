@@ -25,11 +25,11 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
     }
 
 ) {
+    private var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private var auth: FirebaseAuth = FirebaseAuth.getInstance()
+
     inner class PostViewHolder(private val binding: PostItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-
-        private var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-        private var auth: FirebaseAuth = FirebaseAuth.getInstance()
 
         @SuppressLint("UseCompatLoadingForDrawables")
         fun setPost(post: Post) {
@@ -49,46 +49,44 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
                         }
                     }
                 }
-            //likebtn
+            //likesBtn
             val postId = post.postId
             val currentUserId = auth.currentUser!!.uid
             binding.likedClick.setOnClickListener {
                 firestore.collection("Posts/$postId/Likes").document(currentUserId).get()
                     .addOnCompleteListener { task ->
-                        if (task.result != null) {
+                        if (!task.result!!.exists()) {
                             val likesMap: HashMap<String, Any> = HashMap()
                             likesMap["timestamp"] = FieldValue.serverTimestamp()
-                            firestore.collection("Posts/$postId/Likes").document(currentUserId).set(likesMap)
+                            firestore.collection("Posts/$postId/Likes").document(currentUserId)
+                                .set(likesMap)
                         } else {
-                            Log.d("tag","error")
+                            firestore.collection("Posts/$postId/Likes").document(currentUserId).delete()
                         }
                     }
-                firestore.collection("Posts/$postId/Likes").document(currentUserId)
-                    .addSnapshotListener { value, _ ->
-                        if (value != null) {
+            }
+            //like color change
+            firestore.collection("Posts/$postId/Likes").document(currentUserId)
+                .addSnapshotListener { value, error ->
+                    if (error == null) {
+                        if (value!!.exists()) {
                             binding.likedClick.setImageDrawable(itemView.context.getDrawable(R.drawable.ic_after_like))
                         } else {
                             binding.likedClick.setImageDrawable(itemView.context.getDrawable(R.drawable.before_liked))
                         }
                     }
-//                firestore.collection("Posts/$postId/Likes").document(currentUserId).get()
-//                    .addOnCompleteListener { task ->
-//                        if (task.result!!.exists()) {
-//                            val likesMap: HashMap<String, Any> = HashMap()
-//                            likesMap["timestamp"] = FieldValue.serverTimestamp()
-//                            firestore.collection("Posts/$postId/Likes").document(currentUserId).set(likesMap)
-//                        } else {
-//                            firestore.collection("Posts/$postId/Likes").document(currentUserId).delete()
-//                            Log.d("tag",currentUserId)
-//                        }
-//                    }
-//                firestore.collection("Posts/$postId/Likes").document(currentUserId).addSnapshotListener { value, error ->
-//                        if (value!!.exists()) {
-//                            binding.likedClick.setImageDrawable(itemView.context.getDrawable(R.drawable.ic_after_like))
-//                        } else {
-//                            binding.likedClick.setImageDrawable(itemView.context.getDrawable(R.drawable.before_liked))
-//                        }
-//                }
+                }
+
+            //likes count
+            firestore.collection("Posts/$postId/Likes").addSnapshotListener { value, error ->
+                if (error == null) {
+                    if (value != null) {
+                        val count = value.size()
+                        setPostLikes(count)
+                    } else {
+                        setPostLikes(0)
+                    }
+                }
             }
         }
 
@@ -98,6 +96,11 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
 
         private fun setPostUserName(userName: String) {
             binding.userNameText.text = userName
+        }
+
+        @SuppressLint("SetTextI18n")
+        private fun setPostLikes(count: Int) {
+            binding.likeCountTv.text = "$count Likes"
         }
 
     }
