@@ -96,6 +96,7 @@ class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter
             //comments implementation
             binding.commentIv.setOnClickListener {
                 val commentIntent = Intent(itemView.context, CommentsActivity::class.java)
+                commentIntent.putExtra("postId",postId)
                 itemView.context.startActivity(commentIntent)
             }
         }

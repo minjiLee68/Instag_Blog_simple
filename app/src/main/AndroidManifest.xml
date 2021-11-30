@@ -14,13 +14,11 @@
         android:theme="@style/Theme.Instag_Blog_simple">
         <activity
             android:name=".CommentsActivity"
-            android:exported="false" />
+            android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name=".AddPostActivity"
-            android:exported="false" />
+            android:name=".AddPostActivity" />
         <activity
-            android:name=".SetUpActivity"
-            android:exported="false" />
+            android:name=".SetUpActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".LoginActivity" />

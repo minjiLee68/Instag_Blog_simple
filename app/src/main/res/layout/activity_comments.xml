@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".CommentsActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@id/comment_tv"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/comment_tv"
@@ -16,8 +28,8 @@
         android:layout_marginBottom="20dp"
         android:background="@drawable/commend_background"
         android:ems="8"
+        android:imeOptions="actionDone"
         android:inputType="text"
-        android:padding="8dp"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/send"
