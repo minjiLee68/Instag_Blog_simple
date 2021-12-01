@@ -38,7 +38,8 @@ class PostViewModel(private val repository: PostRepository) : ViewModel() {
         commentList: MutableList<Comments>,
         postId: String
     ): LiveData<List<Comments>> {
-        return repository.getCommentId(commentList,postId)
+        repository.getCommentId(commentList, postId)
+        return repository.getCommentData()
     }
 
 }

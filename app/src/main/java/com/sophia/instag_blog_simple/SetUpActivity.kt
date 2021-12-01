@@ -1,6 +1,7 @@
 package com.sophia.instag_blog_simple
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
@@ -124,7 +125,7 @@ class SetUpActivity : AppCompatActivity(), CallAnotherActivityNavigator {
             downloadUri = mImageUri
         }
 
-        viewmodel.setUser(name,downloadUri.toString(),this)
+        viewmodel.setUser(name, downloadUri.toString(), this)
     }
 
     private fun cropImage(uri: Uri) {
@@ -135,22 +136,25 @@ class SetUpActivity : AppCompatActivity(), CallAnotherActivityNavigator {
 
     private val fileterActivityLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK && it.data?.data != null) {
-                cropImage(it.data?.data!!)
-                mImageUri = it.data?.data!!
-                binding.profile.setImageURI(mImageUri)
-            }
-            if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-                val result: CropImage.ActivityResult = CropImage.getActivityResult(it.data)
-                if (it.resultCode == RESULT_OK) {
-                    result.uri?.let {
-                        binding.profile.setImageBitmap(result.bitmap)
-                        binding.profile.setImageURI(result.uri)
-                        mImageUri = result.uri
-                        isPhotoSelected = true
+            when (it.resultCode) {
+                RESULT_OK -> {
+                    it.data?.data?.let { uri ->
+                        cropImage(uri)
                     }
-                } else if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                    Toast.makeText(this, result.error.message, Toast.LENGTH_SHORT).show()
+                    mImageUri = it.data?.data!!
+                    binding.profile.setImageURI(mImageUri)
+                }
+                CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
+                    val result = CropImage.getActivityResult(it.data)
+                    if (it.resultCode == Activity.RESULT_OK) {
+                        result.uri?.let {
+                            binding.profile.setImageBitmap(result.bitmap)
+                            binding.profile.setImageURI(result.uri)
+                            mImageUri = result.uri
+                        }
+                    } else if (it.resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                        Toast.makeText(this, result.error.message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

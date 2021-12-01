@@ -26,29 +26,12 @@ class CommentsAdapter(private val commentsList: List<Comments>) :
 
     ) {
 
-    private var firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private var auth: FirebaseAuth = FirebaseAuth.getInstance()
-
     inner class CommentViewHolder(private val binding: CommentItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(comments: Comments) {
             binding.userName.text = comments.user
             binding.commentTv.text = comments.comment
-
-            val userId = Post().postId
-
-            firestore.collection("Users").document(userId).get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        if (task.result!!.exists()) {
-                            val name = task.result!!.getString("name").toString()
-                            val imageUrl = task.result!!.getString("image").toString()
-
-                            setUserName(name)
-                            setCircleImageView(imageUrl)
-                        }
-                    }
-                }
+            Glide.with(itemView.context).load(comments.userProfile).into(binding.profile)
         }
 
         fun setUserName(userName: String) {
@@ -56,7 +39,7 @@ class CommentsAdapter(private val commentsList: List<Comments>) :
         }
 
         fun setCircleImageView(profile: String) {
-            Glide.with(itemView.context).load(profile).into(binding.profile)
+
         }
     }
 

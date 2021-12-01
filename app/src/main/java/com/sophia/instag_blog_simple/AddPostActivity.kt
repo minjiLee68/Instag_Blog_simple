@@ -11,21 +11,16 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.sophia.instag_blog_simple.databinding.ActivityAddPostBinding
 import com.sophia.instag_blog_simple.interfaced.CallAnotherActivityNavigator
-import com.sophia.instag_blog_simple.model.Post
 import com.sophia.instag_blog_simple.viewmodel.PostViewModel
 import com.sophia.instag_blog_simple.viewmodel.PostViewModelFactory
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
-import java.text.SimpleDateFormat
-import java.util.*
 
 class AddPostActivity : AppCompatActivity(), CallAnotherActivityNavigator {
 
@@ -58,7 +53,7 @@ class AddPostActivity : AppCompatActivity(), CallAnotherActivityNavigator {
 
     private fun addPost() {
         binding.ivAddImage.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             intent.type = "image/*"
             intent.putExtra("crop", true) //기존 코드에 이 줄 추가!
             fileterActivityLauncher.launch(intent)

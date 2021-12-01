@@ -2,6 +2,7 @@ package com.sophia.instag_blog_simple.repository
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -105,8 +106,17 @@ class PostRepository(context: Context) {
 
     fun sendComment(comments: String, postId: String) {
         if (comments.isNotEmpty()) {
-            val comment = Comments(comments, time, Uid)
-            firestore.collection("Posts/$postId/Comments").document().set(comment)
+            firestore.collection("Users").document(Uid).get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        if (task.result!!.exists()) {
+                            val name = task.result!!.getString("name").toString()
+                            val imageUrl = task.result!!.getString("image").toString()
+                            val comment = Comments(comments, time, name, imageUrl)
+                            firestore.collection("Posts/$postId/Comments").document().set(comment)
+                        }
+                    }
+                }
         }
     }
 
@@ -118,6 +128,10 @@ class PostRepository(context: Context) {
             for (dc: DocumentChange in value!!.documentChanges) {
                 if (dc.type == DocumentChange.Type.ADDED) {
                     val comments = dc.document.toObject(Comments::class.java)
+                    comments.comment = dc.document.getString("comment")!!
+                    comments.user = dc.document.getString("user")!!
+                    comments.time = dc.document.getString("time")!!
+
                     commentList.add(comments)
                     mCommentData.value = commentList
                 }
