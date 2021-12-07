@@ -22,7 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30dp"
-        android:backgroundTint="@color/orange"
+        android:backgroundTint="@color/hint_color"
         android:ems="10"
         android:hint="닉네임"
         android:inputType="textPersonName"

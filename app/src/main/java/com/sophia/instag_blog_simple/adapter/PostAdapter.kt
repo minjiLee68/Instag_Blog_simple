@@ -2,9 +2,14 @@ package com.sophia.instag_blog_simple.adapter
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
+import android.text.Spannable
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +21,7 @@ import com.sophia.instag_blog_simple.CommentsActivity
 import com.sophia.instag_blog_simple.R
 import com.sophia.instag_blog_simple.databinding.PostItemBinding
 import com.sophia.instag_blog_simple.model.Post
+import java.lang.Exception
 
 class PostAdapter(private val mList: List<Post>) : ListAdapter<Post, PostAdapter.PostViewHolder>(
     object : DiffUtil.ItemCallback<Post>() {

@@ -4,5 +4,5 @@ data class Comments(
     var comment: String = "",
     var time: String = "",
     var user: String = "",
-    var userProfile: String = ""
+    var userProfile: String = "",
 )

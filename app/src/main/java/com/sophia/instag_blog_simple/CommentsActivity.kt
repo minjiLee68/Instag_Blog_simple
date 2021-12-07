@@ -2,6 +2,7 @@ package com.sophia.instag_blog_simple
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -36,26 +37,32 @@ class CommentsActivity : AppCompatActivity() {
         commentList = mutableListOf()
 
         init()
-        sendComment()
         initRecyclerView()
+        sendComment()
     }
 
     private fun init() {
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
         currentUserId = auth.currentUser!!.uid
-        commentAdapter = CommentsAdapter(commentList)
     }
 
     private fun initRecyclerView() {
         binding.recyclerView.let {
+            commentAdapter = CommentsAdapter(commentList)
             it.setHasFixedSize(true)
             it.layoutManager = LinearLayoutManager(this)
             it.adapter = commentAdapter
+            viewmodel.getCommentId(commentList,postId).observe(this, { live ->
+                commentAdapter.submitList(live)
+
+                //notifyItemRangeChanged(positionStart: Int, itemCount: Int)
+                //positionStart: 변경된 첫 번째 아이템의 위치
+                //itemCount: 변경된 아이템의 개수
+                commentAdapter.notifyItemRangeInserted(live.size,live.size)
+                binding.recyclerView.smoothScrollToPosition(live.size -1)
+            })
         }
-        viewmodel.getCommentId(commentList,postId).observe(this, {
-            commentAdapter.submitList(it)
-        })
     }
 
     private fun sendComment() {

@@ -1,5 +1,6 @@
 package com.sophia.instag_blog_simple.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -32,14 +33,6 @@ class CommentsAdapter(private val commentsList: List<Comments>) :
             binding.userName.text = comments.user
             binding.commentTv.text = comments.comment
             Glide.with(itemView.context).load(comments.userProfile).into(binding.profile)
-        }
-
-        fun setUserName(userName: String) {
-            binding.userName.text = userName
-        }
-
-        fun setCircleImageView(profile: String) {
-
         }
     }
 

@@ -4,11 +4,14 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.sophia.instag_blog_simple.interfaced.CallAnotherActivityNavigator
 import com.sophia.instag_blog_simple.model.Comments
 import com.sophia.instag_blog_simple.model.Post
 import com.sophia.instag_blog_simple.model.User
 import com.sophia.instag_blog_simple.repository.PostRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class PostViewModel(private val repository: PostRepository) : ViewModel() {
 
